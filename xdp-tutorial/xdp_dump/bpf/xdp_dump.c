@@ -128,7 +128,6 @@ int xdp_dump(struct xdp_md *ctx) {
     bpf_perf_event_output(ctx, &perfmap, flags, &evt, sizeof(evt));
   }
 
-
   return XDP_PASS;
 }
 
