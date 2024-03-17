@@ -137,15 +137,18 @@ func main() {
 			counter++
 			fmt.Printf("Counter: %d\n", counter)
 
+			rawData := evnt.RawSample[METADATA_SIZE:]
+
 			if len(evnt.RawSample)-METADATA_SIZE > 0 {
 				fmt.Println(hex.Dump(evnt.RawSample[METADATA_SIZE:]))
+				rawData = evnt.RawSample[METADATA_SIZE:]
 			}
 
 			received += len(evnt.RawSample)
 			lost += int(evnt.LostSamples)
 
 			// Send data to gRPC server
-			err = sendDataToServer(client, event, int32(counter))
+			err = sendDataToServer(client, event, int32(counter), hex.Dump(rawData))
 			if err != nil {
 				fmt.Printf("Failed to send data to gRPC server: %v\n", err)
 				continue
@@ -164,14 +167,15 @@ func main() {
 	fmt.Println("\nDetaching program and exiting...")
 }
 
-func sendDataToServer(client pb.UserServiceClient, event perfEventItem, packetNumber int32) error {
+func sendDataToServer(client pb.UserServiceClient, event perfEventItem, packetNumber int32, rawDumpString string) error {
 	// Send data to server
 	_, err := client.SendUserData(context.Background(), &pb.UserRequest{
 		SourceIp:        intToIPv4(event.SrcIp).String(),
 		DestinationIp:   intToIPv4(event.DstIp).String(),
 		SourcePort:      int32(event.SrcPort),
 		DestinationPort: int32(event.DstPort),
-		PacketNumber:    packetNumber, // Include packet number
+		PacketNumber:    packetNumber,  // Include packet number
+		RawData:         rawDumpString, // Include raw data as string
 	})
 	return err
 }

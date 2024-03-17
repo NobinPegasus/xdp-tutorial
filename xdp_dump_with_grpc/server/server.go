@@ -20,6 +20,10 @@ func (s *server) SendUserData(ctx context.Context, req *pb.UserRequest) (*pb.Use
 	fmt.Printf("Received:\nPacket Number: %d\nSource IP: %s\nDestination IP: %s\nSource Port: %d\nDestination Port: %d\n",
 		req.PacketNumber, req.SourceIp, req.DestinationIp, req.SourcePort, req.DestinationPort)
 
+	// Handle raw data
+	rawData := req.RawData
+	fmt.Printf("Raw Data:\n%s\n", rawData)
+
 	return &pb.UserResponse{Message: "Data received successfully"}, nil
 }
 

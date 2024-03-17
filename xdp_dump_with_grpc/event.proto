@@ -10,6 +10,7 @@ message UserRequest {
   int32 source_port = 3;
   int32 destination_port = 4;
   int32 packet_number = 5; // Add packet_number field
+  string raw_data = 6;      // Add raw_data field
 }
 
 message UserResponse {
