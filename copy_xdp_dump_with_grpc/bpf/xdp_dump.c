@@ -1,4 +1,4 @@
-/// Copyright (c) 2019 Dropbox, Inc.
+// Copyright (c) 2019 Dropbox, Inc.
 // Full license can be found in the LICENSE file.
 
 // XDP dump is simple program that dumps new IPv4 TCP connections through perf events.
@@ -54,6 +54,7 @@ struct tcphdr {
   __u16 check;
   __u16 urg_ptr;
 };
+__attribute__((packed));
 
 // PerfEvent eBPF map
 BPF_MAP_DEF(perfmap) = {
@@ -62,55 +63,21 @@ BPF_MAP_DEF(perfmap) = {
 };
 BPF_MAP_ADD(perfmap);
 
-
 // PerfEvent item
 struct perf_event_item {
-  struct {
-    __u8 destination_mac[6];
-    __u8 source_mac[6];
-    __u16 ethertype;
-  } ethernet_header;
-  struct {
-    __u32 source_ip;
-    __u32 destination_ip;
-    __u8 version;
-    __u8 ihl;
-    __u8 tos;
-    __u16 tot_len;
-    __u16 id;
-    __u16 frag_off;
-    __u8 ttl;
-    __u8 protocol;
-    __u16 check;
-  } ip_header;
-  struct {
-    __u16 source_port;
-    __u16 destination_port;
-    __u32 seq;
-    __u32 ack_seq;
-    union {
-      struct {
-        __u16 ns : 1,
-        reserved : 3,
-        doff : 4,
-        fin : 1,
-        syn : 1,
-        rst : 1,
-        psh : 1,
-        ack : 1,
-        urg : 1,
-        ece : 1,
-        cwr : 1;
-      };
-    };
-    __u16 window;
-    __u16 check;
-    __u16 urg_ptr;
-  } tcp_header;
-};
-_Static_assert(sizeof(struct perf_event_item) == 60, "wrong size of perf_event_item");
+    struct ethhdr eth_hdr;
+    struct iphdr ip_hdr;
+    // __u16 source;
+    // __u16 dest;
+    // __u32 seq;
+    // __u32 ack_seq; 
+    struct tcphdr tcp_hdr;
+} __attribute__((packed));
 
-// XDP program //
+_Static_assert(sizeof(struct perf_event_item) == 54, "wrong size of perf_event_item");
+
+
+// XDP program
 SEC("xdp")
 int xdp_dump(struct xdp_md *ctx) {
   void *data_end = (void *)(long)ctx->data_end;
@@ -134,69 +101,25 @@ int xdp_dump(struct xdp_md *ctx) {
     return XDP_ABORTED;
   }
 
-  // // L4
-  // if (ip->protocol != 0x06) {  // IPPROTO_TCP -> 6
-  //   // Non TCP
-  //   return XDP_PASS;
-  // }
   data += ip->ihl * 4;
   struct tcphdr *tcp = data;
   if (data + sizeof(*tcp) > data_end) {
     return XDP_ABORTED;
   }
-  bpf_printk("Hello, world, from BPF!");
-
 
   // Emit perf event for every ICMP packet
-  if (ip->protocol) {
-      // Emit perf event for every TCP packet
-struct perf_event_item evt = {
-    .ethernet_header.destination_mac[0] = ether->h_dest[0],
-    .ethernet_header.destination_mac[1] = ether->h_dest[1],
-    .ethernet_header.destination_mac[2] = ether->h_dest[2],
-    .ethernet_header.destination_mac[3] = ether->h_dest[3],
-    .ethernet_header.destination_mac[4] = ether->h_dest[4],
-    .ethernet_header.destination_mac[5] = ether->h_dest[5],
-    .ethernet_header.source_mac[0] = ether->h_source[0],
-    .ethernet_header.source_mac[1] = ether->h_source[1],
-    .ethernet_header.source_mac[2] = ether->h_source[2],
-    .ethernet_header.source_mac[3] = ether->h_source[3],
-    .ethernet_header.source_mac[4] = ether->h_source[4],
-    .ethernet_header.source_mac[5] = ether->h_source[5],
-    .ethernet_header.ethertype = ether->h_proto,
-
-    // .ip_header.source_ip = ip->saddr,
-    // .ip_header.destination_ip = ip->daddr,
-    // .ip_header.version = ip->version,
-    // .ip_header.ihl = ip->ihl,
-    // .ip_header.tos = ip->tos,
-    // .ip_header.tot_len = ip->tot_len,
-    // .ip_header.id = ip->id,
-    // .ip_header.frag_off = ip->frag_off,
-    // .ip_header.ttl = ip->ttl,
-    // .ip_header.protocol = ip->protocol,
-    // .ip_header.check = ip->check,
-
-    // .tcp_header.source_port = tcp->source,
-    // .tcp_header.destination_port = tcp->dest,
-    // .tcp_header.seq = tcp->seq,
-    // .tcp_header.ack_seq = tcp->ack_seq,
-    // .tcp_header.ns = tcp->ns,
-    // .tcp_header.reserved = tcp->reserved,
-    // .tcp_header.doff = tcp->doff,
-    // .tcp_header.fin = tcp->fin,
-    // .tcp_header.syn = tcp->syn,
-    // .tcp_header.rst = tcp->rst,
-    // .tcp_header.psh = tcp->psh,
-    // .tcp_header.ack = tcp->ack,
-    // .tcp_header.urg = tcp->urg,
-    // .tcp_header.ece = tcp->ece,
-    // .tcp_header.cwr = tcp->cwr,
-    // .tcp_header.window = tcp->window,
-    // .tcp_header.check = tcp->check,
-    // .tcp_header.urg_ptr = tcp->urg_ptr,
-};
-
+  if (ip->protocol) {  // IPPROTO_TCP -> 6
+    struct perf_event_item evt = {
+      .eth_hdr = *ether,
+      .ip_hdr = *ip,
+      .tcp_hdr = *tcp,
+      // .src_ip = ip->saddr,
+      // .dst_ip = ip->daddr,
+      // .source = tcp->source,
+      // .dest = tcp->dest,
+      // .seq = tcp->seq,
+      // .ack_seq = tcp->ack_seq,
+    };
 
     // flags for bpf_perf_event_output() actually contain 2 parts (each 32bit long):
     //
@@ -211,10 +134,6 @@ struct perf_event_item evt = {
     // So total perf event length will be sizeof(evt) + packet_size
     __u64 flags = BPF_F_CURRENT_CPU | (packet_size << 32);
     bpf_perf_event_output(ctx, &perfmap, flags, &evt, sizeof(evt));
-    // bpf_printk("Hello, world, from Down");
-
-
-
   }
 
   return XDP_PASS;
