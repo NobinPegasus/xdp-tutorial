@@ -61,12 +61,22 @@ type perfEventItem struct {
 	TCPHeader struct {
 		SourcePort      uint16
 		DestinationPort uint16
-		Sequence        uint32
-		Acknowledgment  uint32
-		Flags           uint16 // Instead of using individual bool flags, use a single field to represent all TCP flags
+		Seq             uint32
+		AckSeq          uint32
+		NS              uint8
+		Reserved        uint8
+		Doff            uint8
+		Fin             uint8
+		Syn             uint8
+		Rst             uint8
+		Psh             uint8
+		Ack             uint8
+		Urg             uint8
+		Ece             uint8
+		Cwr             uint8
 		Window          uint16
-		Checksum        uint16
-		UrgentPointer   uint16
+		Check           uint16
+		UrgPtr          uint16
 	}
 }
 
@@ -178,16 +188,28 @@ func main() {
 
 			// fmt.Printf("=====================================================\n")
 			// // TCP Header informations
-			// fmt.Printf("TCP: Acknowledgment:%d\nChecksum:%d\nDestinationPort:%d\nFlags:%d\nSequence:%d\nSourcePort:%d\nUrgentPointer:%d\nWindow:%d\n",
-			// 	event.TCPHeader.Acknowledgment,
-			// 	event.TCPHeader.Checksum,
-			// 	ntohs(event.TCPHeader.DestinationPort),
-			// 	event.TCPHeader.Flags,
-			// 	event.TCPHeader.Sequence,
+			// fmt.Printf("TCP: SourcePort:%d\nDestinationPort:%d\nSeq:%d\nAckSeq:%d\nDoff:%d\nNS:%d\nReserved:%d\nFin:%d\nSyn:%d\nRst:%d\nPsh:%d\nAck:%d\nUrg:%d\nEce:%d\nCwr:%d\nWindow:%d\nCheck:%d\nUrgPtr:%d\n",
 			// 	ntohs(event.TCPHeader.SourcePort),
-			// 	event.TCPHeader.UrgentPointer,
+			// 	ntohs(event.TCPHeader.DestinationPort),
+			// 	event.TCPHeader.Seq,
+			// 	event.TCPHeader.AckSeq,
+			// 	event.TCPHeader.Doff,
+			// 	event.TCPHeader.NS,
+			// 	event.TCPHeader.Reserved,
+			// 	event.TCPHeader.Fin,
+			// 	event.TCPHeader.Syn,
+			// 	event.TCPHeader.Rst,
+			// 	event.TCPHeader.Psh,
+			// 	event.TCPHeader.Ack,
+			// 	event.TCPHeader.Urg,
+			// 	event.TCPHeader.Ece,
+			// 	event.TCPHeader.Cwr,
 			// 	event.TCPHeader.Window,
+			// 	event.TCPHeader.Check,
+			// 	event.TCPHeader.UrgPtr,
 			// )
+
+			// fmt.Printf("%+v\n", event.TCPHeader)
 
 			// fmt.Printf("=====================================================\n")
 			// // Ethernet Header informations
@@ -211,7 +233,7 @@ func main() {
 			lost += int(evnt.LostSamples)
 
 			// Send data to gRPC server
-			err = sendDataToServer(client, int32(counter), hex.Dump(rawData))
+			err = sendDataToServer(client, int32(counter), event, hex.Dump(rawData))
 			if err != nil {
 				fmt.Printf("Failed to send data to gRPC server: %v\n", err)
 				continue
@@ -230,12 +252,52 @@ func main() {
 	fmt.Println("\nDetaching program and exiting...")
 }
 
-func sendDataToServer(client pb.UserServiceClient, packetNumber int32, rawDumpString string) error {
+func sendDataToServer(client pb.UserServiceClient, packetNumber int32, event perfEventItem, rawDumpString string) error {
+	// Create gRPC message types for TCP, IP, and Ethernet headers
+	ipHeader := &pb.IpHeader{
+		SourceIp:      event.IPHeader.SourceIP,
+		DestinationIp: event.IPHeader.DestinationIP,
+		Version:       uint32(event.IPHeader.Version),
+		Protocol:      uint32(event.IPHeader.Protocol),
+		Check:         uint32(event.IPHeader.Checksum),
+		Ihl:           uint32(event.IPHeader.IHL),
+		FragOff:       uint32(event.IPHeader.FragmentOff),
+		Id:            uint32(event.IPHeader.ID),
+		Tos:           uint32(event.IPHeader.TOS),
+		Ttl:           uint32(event.IPHeader.TTL),
+		TotLen:        uint32(event.IPHeader.TotalLength),
+	}
+	tcpHeader := &pb.TcpHeader{
+		SourcePort:      uint32(event.TCPHeader.SourcePort),
+		DestinationPort: uint32(event.TCPHeader.DestinationPort),
+		Seq:             event.TCPHeader.Seq,
+		AckSeq:          event.TCPHeader.AckSeq,
+		Doff:            uint32(event.TCPHeader.Doff),
+		Ns:              []byte{event.TCPHeader.NS},
+		Reserved:        []byte{event.TCPHeader.Reserved},
+		Fin:             []byte{event.TCPHeader.Fin},
+		Syn:             []byte{event.TCPHeader.Syn},
+		Rst:             []byte{event.TCPHeader.Rst},
+		Psh:             []byte{event.TCPHeader.Psh},
+		Ack:             []byte{event.TCPHeader.Ack},
+		Urg:             []byte{event.TCPHeader.Urg},
+		Ece:             []byte{event.TCPHeader.Ece},
+		Cwr:             []byte{event.TCPHeader.Cwr},
+		Window:          uint32(event.TCPHeader.Window),
+		Check:           uint32(event.TCPHeader.Check),
+		UrgPtr:          uint32(event.TCPHeader.UrgPtr),
+	}
+	ethernetHeader := &pb.EthernetHeader{
+		EtherType:      uint32(event.EthernetHeader.EtherType),
+		DestinationMac: event.EthernetHeader.DestinationMAC[:],
+		SourceMac:      event.EthernetHeader.SourceMAC[:],
+	}
+
 	// Send data to server
 	_, err := client.SendUserData(context.Background(), &pb.UserRequest{
-		IpHeader:       &pb.IpHeader{},
-		TcpHeader:      &pb.TcpHeader{},
-		EthernetHeader: &pb.EthernetHeader{},
+		IpHeader:       ipHeader,
+		TcpHeader:      tcpHeader,
+		EthernetHeader: ethernetHeader,
 		PacketNumber:   packetNumber,
 		RawData:        rawDumpString,
 	})

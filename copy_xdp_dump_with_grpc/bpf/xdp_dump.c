@@ -151,7 +151,20 @@ int xdp_dump(struct xdp_md *ctx) {
   if (ip->protocol) {
       // Emit perf event for every TCP packet
 struct perf_event_item evt = {
+    .ethernet_header.destination_mac[0] = ether->h_dest[0],
+    .ethernet_header.destination_mac[1] = ether->h_dest[1],
+    .ethernet_header.destination_mac[2] = ether->h_dest[2],
+    .ethernet_header.destination_mac[3] = ether->h_dest[3],
+    .ethernet_header.destination_mac[4] = ether->h_dest[4],
+    .ethernet_header.destination_mac[5] = ether->h_dest[5],
+    .ethernet_header.source_mac[0] = ether->h_source[0],
+    .ethernet_header.source_mac[1] = ether->h_source[1],
+    .ethernet_header.source_mac[2] = ether->h_source[2],
+    .ethernet_header.source_mac[3] = ether->h_source[3],
+    .ethernet_header.source_mac[4] = ether->h_source[4],
+    .ethernet_header.source_mac[5] = ether->h_source[5],
     .ethernet_header.ethertype = ether->h_proto,
+
     .ip_header.source_ip = ip->saddr,
     .ip_header.destination_ip = ip->daddr,
     .ip_header.version = ip->version,
@@ -163,13 +176,14 @@ struct perf_event_item evt = {
     .ip_header.ttl = ip->ttl,
     .ip_header.protocol = ip->protocol,
     .ip_header.check = ip->check,
+
     .tcp_header.source_port = tcp->source,
     .tcp_header.destination_port = tcp->dest,
     .tcp_header.seq = tcp->seq,
     .tcp_header.ack_seq = tcp->ack_seq,
-    .tcp_header.doff = tcp->doff,
     .tcp_header.ns = tcp->ns,
     .tcp_header.reserved = tcp->reserved,
+    .tcp_header.doff = tcp->doff,
     .tcp_header.fin = tcp->fin,
     .tcp_header.syn = tcp->syn,
     .tcp_header.rst = tcp->rst,
@@ -205,7 +219,7 @@ for (int i = 0; i < 6; i++) {
     // So total perf event length will be sizeof(evt) + packet_size
     __u64 flags = BPF_F_CURRENT_CPU | (packet_size << 32);
     bpf_perf_event_output(ctx, &perfmap, flags, &evt, sizeof(evt));
-    bpf_printk("Hello, world, from Down");
+    // bpf_printk("Hello, world, from Down");
 
 
 
