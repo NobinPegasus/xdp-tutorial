@@ -165,9 +165,8 @@ func main() {
 				continue
 			}
 
-			fmt.Printf("TCP: %s:%d -> %s:%d\n",
-				intToIPv4(event.IPHeader.SourceIP), ntohs(event.TCPHeader.SourcePort),
-				intToIPv4(event.IPHeader.DestinationIP), ntohs(event.TCPHeader.DestinationPort),
+			fmt.Printf("TCP: Source MAC: %s -> %s %d\n",
+				ByteToMAC(event.EthernetHeader.SourceMAC), ByteToMAC(event.EthernetHeader.DestinationMAC), event.EthernetHeader.EtherType,
 			)
 
 			// fmt.Printf("=====================================================\n")
@@ -225,7 +224,7 @@ func main() {
 			rawData := evnt.RawSample[METADATA_SIZE:]
 
 			if len(evnt.RawSample)-METADATA_SIZE > 0 {
-				// fmt.Println(hex.Dump(evnt.RawSample[METADATA_SIZE:]))
+				fmt.Println(hex.Dump(evnt.RawSample[METADATA_SIZE:]))
 				rawData = evnt.RawSample[METADATA_SIZE:]
 			}
 

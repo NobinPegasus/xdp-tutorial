@@ -165,47 +165,39 @@ struct perf_event_item evt = {
     .ethernet_header.source_mac[5] = ether->h_source[5],
     .ethernet_header.ethertype = ether->h_proto,
 
-    .ip_header.source_ip = ip->saddr,
-    .ip_header.destination_ip = ip->daddr,
-    .ip_header.version = ip->version,
-    .ip_header.ihl = ip->ihl,
-    .ip_header.tos = ip->tos,
-    .ip_header.tot_len = ip->tot_len,
-    .ip_header.id = ip->id,
-    .ip_header.frag_off = ip->frag_off,
-    .ip_header.ttl = ip->ttl,
-    .ip_header.protocol = ip->protocol,
-    .ip_header.check = ip->check,
+    // .ip_header.source_ip = ip->saddr,
+    // .ip_header.destination_ip = ip->daddr,
+    // .ip_header.version = ip->version,
+    // .ip_header.ihl = ip->ihl,
+    // .ip_header.tos = ip->tos,
+    // .ip_header.tot_len = ip->tot_len,
+    // .ip_header.id = ip->id,
+    // .ip_header.frag_off = ip->frag_off,
+    // .ip_header.ttl = ip->ttl,
+    // .ip_header.protocol = ip->protocol,
+    // .ip_header.check = ip->check,
 
-    .tcp_header.source_port = tcp->source,
-    .tcp_header.destination_port = tcp->dest,
-    .tcp_header.seq = tcp->seq,
-    .tcp_header.ack_seq = tcp->ack_seq,
-    .tcp_header.ns = tcp->ns,
-    .tcp_header.reserved = tcp->reserved,
-    .tcp_header.doff = tcp->doff,
-    .tcp_header.fin = tcp->fin,
-    .tcp_header.syn = tcp->syn,
-    .tcp_header.rst = tcp->rst,
-    .tcp_header.psh = tcp->psh,
-    .tcp_header.ack = tcp->ack,
-    .tcp_header.urg = tcp->urg,
-    .tcp_header.ece = tcp->ece,
-    .tcp_header.cwr = tcp->cwr,
-    .tcp_header.window = tcp->window,
-    .tcp_header.check = tcp->check,
-    .tcp_header.urg_ptr = tcp->urg_ptr,
+    // .tcp_header.source_port = tcp->source,
+    // .tcp_header.destination_port = tcp->dest,
+    // .tcp_header.seq = tcp->seq,
+    // .tcp_header.ack_seq = tcp->ack_seq,
+    // .tcp_header.ns = tcp->ns,
+    // .tcp_header.reserved = tcp->reserved,
+    // .tcp_header.doff = tcp->doff,
+    // .tcp_header.fin = tcp->fin,
+    // .tcp_header.syn = tcp->syn,
+    // .tcp_header.rst = tcp->rst,
+    // .tcp_header.psh = tcp->psh,
+    // .tcp_header.ack = tcp->ack,
+    // .tcp_header.urg = tcp->urg,
+    // .tcp_header.ece = tcp->ece,
+    // .tcp_header.cwr = tcp->cwr,
+    // .tcp_header.window = tcp->window,
+    // .tcp_header.check = tcp->check,
+    // .tcp_header.urg_ptr = tcp->urg_ptr,
 };
 
-// Copy destination MAC address
-for (int i = 0; i < 6; i++) {
-    evt.ethernet_header.destination_mac[i] = ether->h_dest[i];
-}
 
-// Copy source MAC address
-for (int i = 0; i < 6; i++) {
-    evt.ethernet_header.source_mac[i] = ether->h_source[i];
-}
     // flags for bpf_perf_event_output() actually contain 2 parts (each 32bit long):
     //
     // bits 0-31: either
