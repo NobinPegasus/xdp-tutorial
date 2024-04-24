@@ -1,0 +1,6 @@
+Compiled /root/cilium-ebpf-tc/tc_bpfel.o
+Stripped /root/cilium-ebpf-tc/tc_bpfel.o
+Wrote /root/cilium-ebpf-tc/tc_bpfel.go
+Compiled /root/cilium-ebpf-tc/tc_bpfeb.o
+Stripped /root/cilium-ebpf-tc/tc_bpfeb.o
+Wrote /root/cilium-ebpf-tc/tc_bpfeb.go
