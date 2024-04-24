@@ -19,17 +19,20 @@ It’s IP is 185.199.111.153
 
 When we attach our tc/eBPF code to the tunnel interface we are able to observe this destination ip.
 
-![Screenshot from 2024-04-21 10-50-37.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/f4ef8738-892f-41b5-9c2c-e3f847edae14/766e7b1f-e00f-4cd6-9e59-24a1b5394b62/Screenshot_from_2024-04-21_10-50-37.png)
+![Screenshot from 2024-04-21 10-50-37](https://github.com/inspektors-io/xdp-tutorial/assets/158417040/451652da-13c9-4e39-acfd-4c55670b1898)
 
-![Screenshot from 2024-04-21 10-50-18.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/f4ef8738-892f-41b5-9c2c-e3f847edae14/2c529d8e-a01e-422b-b92d-5bdf7e1ac27e/Screenshot_from_2024-04-21_10-50-18.png)
+
+![Screenshot from 2024-04-21 10-50-18](https://github.com/inspektors-io/xdp-tutorial/assets/158417040/51198ef0-3ca0-4767-9a78-413c4e38282a)
+
 
 ### Workflow Diagram:
 
-![workflow2.drawio.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/f4ef8738-892f-41b5-9c2c-e3f847edae14/ecca7976-e776-4b00-b99c-c16ff51e11f4/workflow2.drawio.png)
+![workflow2 drawio](https://github.com/inspektors-io/xdp-tutorial/assets/158417040/aca90ec6-d262-4351-8cdb-f1e9376923ba)
 
 ### **Kernel Space eBPF Code:**
 
-![openconnect.drawio.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/f4ef8738-892f-41b5-9c2c-e3f847edae14/7ece557c-7a9b-4b09-b9e0-4f1aad2cdf34/openconnect.drawio.png)
+![openconnect drawio](https://github.com/inspektors-io/xdp-tutorial/assets/158417040/ada3b4b6-6260-4d42-975e-151138456857)
+
 
 The XDP is unable to capture packets from virtual interface. Here which is a tunneling interface. But since tc comes later in the stack it can very well be attached to tunnel interfaces (vpnX, tunX).
 Since the OpenConnect does end to end encryption, capturing the inner Destination packet is pretty complicated from the physical interfaces point of view. But attaching tc/eBPF code to the virtual adapter we can monitor the actual traffic (real destination address of the user).
