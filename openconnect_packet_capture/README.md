@@ -256,11 +256,13 @@ int tc_main(struct __sk_buff *skb)
 
 A normal packet structure is eth→ip→tcp/udp. Packet structures can be monitored using wireshark or tshark which is a cli version of wireshark.
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f4ef8738-892f-41b5-9c2c-e3f847edae14/3fd3303a-693e-4cbe-bf26-3f8a505fc9f9/92bb885c-66f6-428b-8fc9-de7d6ca7616e.png)
+![Screenshot from 2024-04-18 10-48-40](https://github.com/inspektors-io/xdp-tutorial/assets/158417040/a4958ebf-52fb-401b-949c-bc94c3d853bd)
+
 
 The openconnect packet is a bit different monitored from tunnel interface.
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f4ef8738-892f-41b5-9c2c-e3f847edae14/fa75a578-fe20-4461-9608-34c50dff57b3/e56489d2-2a88-4c18-94d7-5c51c1dc4d3b.png)
+![Screenshot from 2024-04-18 10-54-39](https://github.com/inspektors-io/xdp-tutorial/assets/158417040/07d822ea-8096-4f9c-a8e2-72e035dcf3cf)
+
 
 First we take the pointer of the starting of the data. sk_buff is the **main networking structure representing a packet**.
 
