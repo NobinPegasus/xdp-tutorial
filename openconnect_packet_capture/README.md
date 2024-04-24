@@ -625,7 +625,7 @@ Then we get the interface. `LinkByName` finds a link by name and returns a point
 	}
 ```
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f4ef8738-892f-41b5-9c2c-e3f847edae14/a7fdaf36-0424-4ad1-9c7d-2b0f17791f44/Untitled.png)
+![Screenshot from 2024-04-20 17-30-38](https://github.com/inspektors-io/xdp-tutorial/assets/158417040/cc9dd227-fa36-4af1-8303-1f2a78800835)
 
 ```bash
 	attrs := netlink.QdiscAttrs{
