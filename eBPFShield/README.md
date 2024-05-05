@@ -1,10 +1,11 @@
 ### Workflow diagram
+![eBPFShield drawio (1)](https://github.com/inspektors-io/xdp-tutorial/assets/158417040/593ca25b-b1b1-4a04-92d6-0cec438607d9)
 
-![eBPFShield.drawio (1).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/f4ef8738-892f-41b5-9c2c-e3f847edae14/3f54a9ca-5761-4d82-b844-7e80092b1dce/eBPFShield.drawio_(1).png)
+
 
 ### Proof of Concept(PoC)
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f4ef8738-892f-41b5-9c2c-e3f847edae14/302adf1e-db72-4a3a-944d-be1227008488/Untitled.png)
+![Screenshot from 2024-05-06 03-01-39](https://github.com/inspektors-io/xdp-tutorial/assets/158417040/96ca2aa2-f5bc-4007-ba12-bd27740c0fcc)
 
 ### Commands to run this tools
 
